@@ -29,7 +29,7 @@ class visal_graph(object):
         """
         G = nx.from_scipy_sparse_matrix(sparse_A)
         pos = nx.kamada_kawai_layout(G)
-        nx.draw(G, pos, node_size=200, linewidths=0, width=1, edge_color='k',with_labels = True)
+        nx.draw(G, pos, node_size=50, linewidths=0, width=0.5, edge_color='k',with_labels = False)
         plt.title('Graph', fontsize='xx-large', fontweight='heavy')
         plt.show()
 

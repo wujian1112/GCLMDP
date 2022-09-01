@@ -3,12 +3,10 @@
 Copyright@ Jian Wu,wujian1112@126.com,2022. If use or build on the code, please cite it at
 URL https://github.com/wujian1112/DLMDP
 """
-
-from models_for_data import pre_process_data as ppd
+"""
+To generate clustered_random_graph saved in 'data/clustered_random_graph/'
+"""
 from models_for_data import random_graph_data as rgd
-from visualization import graph_visualization as gv
-from operation import matrix
-import networkx as nx
 import numpy as np
 import pickle
 import os
@@ -19,11 +17,6 @@ a= os.path.exists(savepath)
 if not a:
     os.makedirs(savepath)
 
-# object for graphs
-g_obj = rgd.random_graph()
-plot_obj = gv.visal_graph()
-
-
 nodes_list =  list(range(20,101))
 random.shuffle(nodes_list)
 cluster_list = list(range(2,6))
@@ -31,8 +24,6 @@ random.shuffle(cluster_list)
 pin_list = [0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
 
 for pin in pin_list:
-
-    graph = dict()
     information = dict()
     graph_list = []
     node_total = 0
@@ -42,8 +33,11 @@ for pin in pin_list:
     num_graph = 5000
     pout = 0.01
     for i in range(num_graph):
+        graph = dict()
+        g_obj = rgd.random_graph()
         print('pin,graph_i = ', pin, i)
         num_node = np.random.choice(nodes_list, replace=True)
+        print(num_node)
         num_cluster = np.random.choice(cluster_list, replace=True)
         adjacency_matrix,labels_vector,G = g_obj.clustered_random_graph(num_node,num_cluster,pin,pout)
         num_edge = G.numberOfEdges()
