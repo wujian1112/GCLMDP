@@ -1,3 +1,9 @@
+
+"""
+Copyright@ wujian1112@126.com,2022. If use or build on the code, please cite it at
+URL https://github.com/wujian1112/DLMDP
+"""
+
 import networkx as nx
 import numpy as np
 from scipy import sparse
@@ -10,6 +16,7 @@ func: fast_gnp_random_graph(n, p, seed=None)
 func: gnm_random_graph(n, m, seed=None)
 f
 '''
+
 
 def random_regular_graph(d, n, seed=None):
     # d :degree of nodes
