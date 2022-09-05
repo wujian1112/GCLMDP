@@ -1,7 +1,6 @@
-from models_for_data import pre_process_data as ppd
+from DLMDP.beiyoong import pre_process_data as ppd
 from models_for_data import random_graph_data as rgd
 import networkx as nx
-import numpy as np
 
 from visualization import graph_visualization as gv
 
