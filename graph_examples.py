@@ -9,7 +9,7 @@ fig = plt.figure()
 ax1= fig.add_subplot(231)
 savepath = 'data/clustered_random_graph/'
 # CRP
-p=0.5
+p = 0.5
 path = savepath + "crg_{}.pkl".format(p)
 my_data = pickle.load(open(path, 'rb'))
 plotobj = gv.visal_graph()
@@ -18,7 +18,7 @@ plt.title('(a) CRG')
 
 ax2= fig.add_subplot(232)
 # GNP
-p=0.2
+p = 0.2
 savepath= 'data/gnp_random_graph/'
 path = savepath + "gnp_{}.pkl".format(p)
 my_data = pickle.load(open(path, 'rb'))
