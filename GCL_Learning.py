@@ -10,8 +10,10 @@ from torch.optim import Adam
 from GCL.eval import get_split, SVMEvaluator
 from GCL.models import DualBranchContrast
 from torch_geometric.nn import GINConv, global_add_pool
-from torch_geometric.data import DataLoader
+from torch_geometric.loader import DataLoader
 from torch_geometric.datasets import TUDataset
+import function_tool as ft
+
 
 
 def make_gin_conv(input_dim, out_dim):
@@ -71,6 +73,9 @@ def train(encoder_model, contrast_model, dataloader, optimizer):
     epoch_loss = 0
     for data in dataloader:
         data = data.to('cuda')
+        # to verify node num and label num
+        # print('nodes=',data.x.shape)
+        # print('label=',data.y.shape)
         optimizer.zero_grad()
 
         if data.x is None:
@@ -94,7 +99,7 @@ def test(encoder_model, dataloader):
     for data in dataloader:
         data = data.to('cuda')
         if data.x is None:
-            num_nodes = data.batch.size(0)
+            num_nodes = data.batch.size(0)  # get the number of size
             data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
         _, g, _, _, _, _ = encoder_model(data.x, data.edge_index, data.batch)
         x.append(g)
@@ -102,26 +107,70 @@ def test(encoder_model, dataloader):
     x = torch.cat(x, dim=0)
     y = torch.cat(y, dim=0)
 
+
     split = get_split(num_samples=x.size()[0], train_ratio=0.8, test_ratio=0.1)
-    result = SVMEvaluator(linear=True)(x, y, split)
+    result = SVMEvaluator(linear=True,params={'C': [0.001, 0.01, 0.1, 1, 10, 100,1000],
+                                              'max_iter': [1000],
+                                              'dual': [False]
+                                              }
+                          )(x, y, split)
     return result
 
 
 def main():
     device = torch.device('cuda')
-    path = osp.join(osp.expanduser('~'), 'datasets')
-    dataset = TUDataset(path, name='PTC_MR')
-    dataloader = DataLoader(dataset, batch_size=128)
-    input_dim = max(dataset.num_features, 1)
+    # dataset= TUDataset(root='dataset_benchmark/PTC_MR', name='PTC_MR', use_node_attr=True)
+
+    p = 0.9
+    savepath = 'data/clustered_random_graph/'
+    path = savepath + "crg_{}.pkl".format(p)
+
+    # p = 0.2
+    # savepath = 'data/gnp_random_graph/'
+    # path = savepath + "gnp_{}.pkl".format(p)
+
+    # savepath= 'data/random_powerlaw_tree/'
+    # path = savepath + "rpt.pkl"
+
+    # savepath = 'data/random_tree/'
+    # path = savepath + "rt.pkl"
+
+    # savepath = 'data/ring_of_cliques/'
+    # path = savepath + "rc.pkl"
+
+    # savepath = 'data/barbell_graph/'
+    # path = savepath + "bg.pkl"
+
+    dataset = ft.load_pyg_data(path)
+    dataloader = DataLoader(dataset, batch_size=128, shuffle=True)
+    input_dim = 1
+    # dataloader = DataLoader(dataset, batch_size=128)
+    # input_dim = max(dataset.num_features, 1)
 
     aug1 = A.Identity()
-    aug2 = A.RandomChoice([A.RWSampling(num_seeds=1000, walk_length=10),
+
+
+    # aug1 = A.RandomChoice([A.RWSampling(num_seeds=20, walk_length=5),
+    #                        A.NodeDropping(pn=0.1),
+    #                        A.FeatureMasking(pf=0.1),
+    #                        A.EdgeRemoving(pe=0.1),
+    #                        ])
+    # aug2 = A.Compose([A.RWSampling(num_seeds=20, walk_length=5),
+    #                   A.NodeDropping(pn=0.1),
+    #                   A.FeatureMasking(pf=0.1),
+    #                   A.EdgeRemoving(pe=0.1)])
+    # aug1 = A.RandomChoice([A.RWSampling(num_seeds=20, walk_length=5),
+    #                        A.NodeDropping(pn=0.1),
+    #                        A.FeatureMasking(pf=0.1),
+    #                        A.EdgeRemoving(pe=0.1)], 1)
+    aug2 = A.RandomChoice([A.RWSampling(num_seeds=20, walk_length=5),
                            A.NodeDropping(pn=0.1),
                            A.FeatureMasking(pf=0.1),
                            A.EdgeRemoving(pe=0.1)], 1)
     gconv = GConv(input_dim=input_dim, hidden_dim=32, num_layers=2).to(device)
     encoder_model = Encoder(encoder=gconv, augmentor=(aug1, aug2)).to(device)
-    contrast_model = DualBranchContrast(loss=L.InfoNCE(tau=0.2), mode='G2G').to(device)
+    contrast_model = DualBranchContrast(loss=L.InfoNCE(tau=1.), mode='G2G').to(device)
+
 
     optimizer = Adam(encoder_model.parameters(), lr=0.01)
 

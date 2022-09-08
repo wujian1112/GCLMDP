@@ -30,7 +30,7 @@ for pin in pin_list:
     edge_total = 0
     node_ave = 0
     edge_ave = 0
-    num_graph = 5000
+    num_graph = 1000
     pout = 0.01
     for i in range(num_graph):
         graph = dict()

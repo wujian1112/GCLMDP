@@ -193,9 +193,20 @@ class random_graph(object):
             cc = nk.components.ConnectedComponents(G)
             cc.run()
             num = cc.numberOfComponents()
-        partition = erg.getCommunities().getVector()
+        #partition = erg.getCommunities().getVector()
         A = adj_obj.adjacency_matrix_nk(G)
-        return A,partition,G
+        # A = nx.adjacency_matrix(G)
+        communities_generator = community.girvan_newman(G)
+        next_level_communities = next(communities_generator)
+        partition = sorted(map(sorted, next_level_communities))
+        label = [0] * num_nodes
+
+        for i in range(len(partition)):
+            for j in range(num_nodes):
+                if j in partition[i]:
+                    label[j] = i
+
+        return A,label,G
 
 
 
