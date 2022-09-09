@@ -31,5 +31,5 @@ class visal_graph(object):
         pos = nx.kamada_kawai_layout(G)
         nx.draw(G, pos, node_size=20, linewidths=0, width=0.5, edge_color='k',with_labels = False)
         # plt.title('Graph', fontsize='xx-large', fontweight='heavy')
-        # plt.show()
+        plt.show()
 

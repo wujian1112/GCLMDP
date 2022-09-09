@@ -6,7 +6,7 @@ import pickle
 from visualization import graph_visualization as gv
 
 plotobj = gv.visal_graph()
-flag = 5  # 0: crp, 1: gnp, 2: rpt, 3: rt, 4; rc, 5：bg
+flag = 0  # 0: crp, 1: gnp, 2: rpt, 3: rt, 4; rc, 5：bg
 
 if flag==0:
     # ///////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ if flag==0:
             labels = labels.union(my_data[j]['labels'])
     ave_nodes = ave_nodes/len(pin_list)
     ave_edges =ave_edges/ len(pin_list)
-    print('crp: ','ave_nodes =',ave_nodes,'ave_edges=',ave_edges,'graphs=',graphs,'labels=',labels)
+    print('crg: ','ave_nodes =',ave_nodes,'ave_edges=',ave_edges,'graphs=',graphs,'labels=',labels)
 elif flag==1:
     # (2)load data of gnp_random_graph
     pin_list = [0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
