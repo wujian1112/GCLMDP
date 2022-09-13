@@ -17,7 +17,8 @@ class graph(object):
         super(graph, self).__init__()
         pass
 
-    def starGraph(self,leaf_node_num):
-        g = nx.star_graph(leaf_node_num, create_using=None)
-        return g
+    def graph_structure(self,g1, g2):
+        self.g1 = g1
+        self.g2 = g2
+
 

@@ -7,7 +7,7 @@ URL https://github.com/wujian1112/DLMDP
 To generate barbell_graph saved in 'data/barbell_graph/'
 """
 
-from models_for_data import random_graph_data as rgd
+from function_datasets import random_graph_data as rgd
 import numpy as np
 import pickle
 import os

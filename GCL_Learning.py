@@ -1,8 +1,7 @@
 
 
-
+import os
 import torch
-import os.path as osp
 import GCL.losses as L
 import GCL.augmentors as A
 import torch.nn.functional as F
@@ -95,6 +94,15 @@ def train(encoder_model, contrast_model, dataloader, optimizer):
             data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
 
         _, _, _, _, g1, g2 = encoder_model(data.x, data.edge_index, data.batch)
+        # save model
+        save_model_path = 'model_weights/'
+        model_file = 'rc_bg_model.pkl'
+        model_path = save_model_path + model_file
+        a = os.path.exists(save_model_path)
+        if not a:
+            os.makedirs(save_model_path)
+        torch.save(encoder_model.state_dict(), model_path)
+
         g1, g2 = [encoder_model.encoder.project(g) for g in [g1, g2]]
         loss = contrast_model(g1=g1, g2=g2, batch=data.batch)
         loss.backward()
@@ -127,6 +135,7 @@ def test(encoder_model, dataloader):
 
                                               })(x, y, split)
 
+
     return result
 
 
@@ -134,9 +143,7 @@ def main():
 
     # dataset= TUDataset(root='dataset_benchmark/PTC_MR', name='PTC_MR', use_node_attr=True)
 
-    p = 0.9
-    savepath = 'data/crg_gnp_random_graph/'
-    path = savepath + "crg_gnp_{}.pkl".format(p)
+    # /////////////////////////////////////////////
 
     # p = 0.9
     # savepath = 'data/gnp_random_graph/'
@@ -153,7 +160,21 @@ def main():
 
     # savepath = 'data/barbell_graph/'
     # path = savepath + "bg.pkl"
-    label_list = ['crg','gnp']
+
+    # ///////////////////////////////////////////
+    # p = 0.9
+    # savepath = 'data/crg_gnp_random_graph/'
+    # path = savepath + "crg_gnp_{}.pkl".format(p)
+    # label_list = ['crg','gnp']
+
+    # savepath = 'data/rpt_rt_tree_graph/'
+    # path = savepath + "rpt_rt.pkl"
+    # label_list = ['rpt', 'rt']
+
+    savepath = 'data/rc_bg_graph/'
+    path = savepath + "rc_bg.pkl"
+    label_list = ['rc', 'bg']
+
     dataset = ft.load_pyg_data_2(path,label_list)
     random.shuffle(dataset)
 
@@ -196,6 +217,18 @@ def main():
     print(f'(E): Best test F1Mi={test_result["micro_f1"]:.4f}, '
           f'F1Ma={test_result["macro_f1"]:.4f}，'
           f'test_acc={test_result["test_acc"]:.4f}')
+
+
+
+    # # load model data
+    # new_encoder_model = Encoder(encoder=gconv, augmentor=(aug1, aug2))
+    # new_encoder_model.load_state_dict(torch.load(save_model_path)).to(device)
+    #
+    # test_result = test(encoder_model, dataloader)
+    # print(f'(E): Best test F1Mi={test_result["micro_f1"]:.4f}, '
+    #       f'F1Ma={test_result["macro_f1"]:.4f}，'
+    #       f'test_acc={test_result["test_acc"]:.4f}')
+
 
 
 if __name__ == '__main__':
